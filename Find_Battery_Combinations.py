@@ -248,9 +248,9 @@ def Find_Two_Battery_Options_Test_with_removed(battery_data, req_energy, req_dis
         total_checked += 1
         yield successful_combinations, count_successful_combinations, total_checked
 
-        if battery_1_index == 333 and battery_2_index == 334:
+        if battery_1_index == 332 and battery_2_index == 333:
             break
-        elif battery_2_index == 334:
+        elif battery_2_index == 333:
             battery_1_index += 1
             if battery_1_index in batteries_to_be_removed:
                 battery_1_index += 1
