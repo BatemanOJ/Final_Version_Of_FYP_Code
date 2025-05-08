@@ -33,7 +33,7 @@ def Find_One_Battery_Options(battery_data, req_energy, req_discharging_power, re
             single_bat_success = 0
             count_successful_batteries += 1
 
-        if battery_1_index == 335:
+        if battery_1_index == 333:
             break
         else:
             battery_1_index += 1

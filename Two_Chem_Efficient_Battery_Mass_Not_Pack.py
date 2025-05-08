@@ -32,12 +32,21 @@ def Two_Chem_Efficient_Battery_Mass_Not_Pack(battery_1, battery_2, req_energy, p
     min_battery_1_only = math.ceil(req_energy/(battery_1_Wh))
     min_battery_2_only = math.ceil(req_energy/(battery_2_Wh))
 
+    pack_mass_B1_only = (((min_battery_1_only * (battery_1[21]/1000))/battery_1[40]) * 100)
+    volume_B1_only, volume_check_B1_only = volume_calculator(battery_1, battery_2, min_battery_1_only, 1, 0, 0, original_max_volume)
+
+    if pack_mass_B1_only > max_mass or volume_B1_only > max_volume:
+        success = 0
+        # print(f"Fail. Mass over limit: {mass}")
+        return success, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+
     no_battery_1 = math.ceil(min_battery_1_only/3)
     no_battery_2 = math.ceil(min_battery_2_only/3)
 
     energy = no_battery_1 * battery_1_Wh + no_battery_2 * battery_2_Wh
     pack_mass = (((no_battery_1 * (battery_1[21]/1000))/battery_1[40]) * 100) + (((no_battery_2 * (battery_2[21]/1000))/battery_2[40]) * 100)
-    total_volume, volume_check = volume_calculator(battery_1, battery_2, no_battery_1, 1, no_battery_2, 1, max_volume)
+    total_volume, volume_check = volume_calculator(battery_1, battery_2, no_battery_1, 1, no_battery_2, 1, original_max_volume)
     # print(f"Total volume 1: {total_volume}")
     # print(f"Pre-tests, energy: {energy} Batteries: {no_battery_1, no_battery_2}, Mass: {pack_mass}, Volume: {max_volume}")
 

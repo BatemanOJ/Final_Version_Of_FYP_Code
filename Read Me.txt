@@ -1,0 +1,53 @@
+To run the code battery selection program, the following libraries must be installed:
+
+- numpy
+- spicy
+- matplotlib
+- os
+- customtkinter
+- plotly.express
+
+This can be done by using the following command in the command window:
+
+pip install numpy scipy matplotlib customtkinter plotly[express]
+
+
+It must also be ensured that the following modules and Excel files are in the working directory
+
+Modules:
+- 
+
+Excel Files:
+- Battery database from open source_CellDatabase_v6
+- Outputted Data
+
+Folders:
+- Outputs
+
+Instructions to runt the program.
+To run the program, select the GUI_Test file and run. This will run a sequence and then bring up the GUI automatically.
+
+Once the GUI appears the user should input their EV characteristics and metrics using the sliders or the boxes and press calculate. The initial values in the program are for a 2015 Nissan Leaf.
+
+The program will then find all the potential options for the metrics input. 
+
+Once found the output sliders will appear on the right of the GUI. These allows the user to refine the options further to find the most suitable one for your application. 
+
+This can be done either using the weightings sliders which adjust the weightings applied to each characteristic and allow the user to specify the most important output. 
+
+To see the outputs of the program graphically, a scatter plot and a parallel coordinates plot are available. 
+The scatter plot shows Range against Charging Speed, each point in the scatter plot can be clicked on to see more details.
+The parallel coordinates plot can be used to see how the different parameters are linked together. In it the user can select their desired range (by dragging along a column) of one output and see all the options that meet this criteria and how it affects the other outputs. The order of the outputs in the plot can be changed by dragging the columns.  
+
+The "Current Options" shows the first option that meets the "desired EV outputs" criteria without applying any other criteria.
+These options can be output to an Excel sheet using the "Excel Output" button. It will go into the "Outputs" folder.
+
+Once a singular option is chosen and showing in the "Current Options" section, the "Determine BMS Option" button can be pressed. This will output the suggested battery management system method, an explanation of these methods can be found in the accompanying report. 
+
+It should be noted that the program uses a generic gravimetric and volumetric cell-to-pack ratio to estimate the final pack mass and volume; these are roughly 60% and 33%, respectively (exact values can be found in the report). If this is less than your expected ratios, then the pack mass or volume could be increased. 
+
+
+
+
+
+

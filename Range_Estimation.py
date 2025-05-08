@@ -98,6 +98,7 @@ def Range_Estimation_for_Batteries(WLTP_data, car_data, battery_data_series_para
     # Pack_mass_test = 664.7 # polesar 3
     # Pack_mass_test = 700 # Audi Q8 e-tron
     # Pack_mass_test = 477.1 # Kia EV6
+    # Pack_mass_test = 0
 
 
     # Power = m*a + (p/2)*Cd*Af*v^2 + Rr*m*g + m*g*sin(theta)
@@ -137,6 +138,7 @@ def Range_Estimation_for_Batteries(WLTP_data, car_data, battery_data_series_para
     # battery_energy_test = 111 # Polestar 3 
     # battery_energy_test = 100 # Audi Q8 e-tron
     # battery_energy_test = 74.6 # Kia EV6
+    # battery_energy_test = 86.5 # Audi sportback
 
     # Range_1 = ((battery_energy_test)/Energy_1_per_km) * 0.9025
 
@@ -152,8 +154,128 @@ def Range_Estimation_for_Batteries(WLTP_data, car_data, battery_data_series_para
 # car_data = [2584, 0.29, 2.3, 0.015, 0] # Polestar 3              Actual: 482, Calculated: 532
 # car_data = [2695, 0.27, 2.47, 0.015, 0] # Audi 
 # car_data = [2115, 0.28, 2.93, 0.015, 0] # Kia EV6
+# car_data = []
  
 # range_test = Range_Estimation_for_Batteries(WLTP_data, car_data, 0, 0, 0)
+# print(f"Range test: {range_test}")
+
+
+
+def Range_Estimation_for_Batteries_2(WLTP_data, car_data, battery_data_series_parallel, battery_1, battery_2):
+
+    # battery_data = [no_series_1, no_series_2, no_parallel_1, no_parallel_2]
+
+    WLTP_Acceleration = 4   # acceleration (m/s^2)
+    WLTP_Velocity = 3       # velocity (m/s)
+    WLTP_Time = 1           # time (s)
+    WLTP_Distance = 5       # distance (m)
+
+    EV_mass = car_data[0]           # EV mass without battery
+    Cd = car_data[1]                # drag coefficient
+    Af = car_data[2]                # frontal area
+    Rr = car_data[3]                # rolling resistance
+    # Angle_of_Car = car_data[4]     # angle of road
+
+    p = 1.225 # air density (kg/m^3)
+ 
+    Power_values = []
+    Time_values = []
+
+    # if battery_data_series_parallel[2] == 0:
+    #     Battery_mass = battery_data_series_parallel[0] * battery_data_series_parallel[1] * (battery_1[21]/1000)
+        
+    #     Pack_mass = ((battery_data_series_parallel[0] * battery_data_series_parallel[1] * (battery_1[21]/1000))/battery_1[40])*100
+        
+    #     battery_energy = (battery_data_series_parallel[0] * battery_data_series_parallel[1] * battery_1[14] * battery_1[16])/1000
+    
+    # else:
+    
+    #     Battery_mass = battery_data_series_parallel[0] * battery_data_series_parallel[1] * (battery_1[21]/1000) + \
+    #                 battery_data_series_parallel[2] * battery_data_series_parallel[3] * (battery_2[21]/1000)
+        
+    #     Pack_mass = ((battery_data_series_parallel[0] * battery_data_series_parallel[1] * (battery_1[21]/1000))/battery_1[40])*100 + \
+    #                 ((battery_data_series_parallel[2] * battery_data_series_parallel[3] * (battery_2[21]/1000))/battery_2[40])*100
+        
+    #     battery_energy = (battery_data_series_parallel[0] * battery_data_series_parallel[1] * battery_1[14] * battery_1[16] + \
+    #                     battery_data_series_parallel[2] * battery_data_series_parallel[3] * battery_2[14] * battery_2[16])/1000
+    
+
+    # print(f"battery mass: {battery_1[21]}, {battery_2[21]}")
+    # print(f"Series - parallel {battery_data_series_parallel[0], battery_data_series_parallel[1], battery_data_series_parallel[2], battery_data_series_parallel[3]}")
+    
+    # Pack_mass = 0#795.92 # Rivian R1T
+    # Pack_mass_test = 443 # Kia Niro
+    # Pack_mass_test = 273 # Nissan leaf
+    # Pack_mass_test = 315.7 # Tesla model 3
+    # Pack_mass_test = 664.7 # polesar 3
+    # Pack_mass_test = 700 # Audi Q8 e-tron
+    # Pack_mass_test = 477.1 # Kia EV6
+    Pack_mass = 0
+
+
+    # Power = m*a + (p/2)*Cd*Af*v^2 + Rr*m*g + m*g*sin(theta)
+   
+
+
+    for i in range(1, len(WLTP_data)):
+        WLTP_row_index = i # 1 = row 3
+        #     print(f"Row 1 acc: {WLTP_data[f"WLTP_{0}_index"][4], WLTP_data[f"WLTP_{1}_index"][4], WLTP_data[f"WLTP_{2}_index"][4]}")
+        
+        
+        Power = (EV_mass + Pack_mass) * WLTP_data[f"WLTP_{WLTP_row_index}_index"][4] + (p) * Cd * Af * (WLTP_data[f"WLTP_{WLTP_row_index}_index"][3]**2) + \
+                Rr * (EV_mass + Pack_mass) * 9.81 + (EV_mass + Pack_mass) * 9.81 * math.sin(0)
+        
+        
+        time_in_loop = WLTP_data[f"WLTP_{WLTP_row_index}_index"][1]
+
+        Power_values.append(Power)
+        Time_values.append(time_in_loop)
+        
+    Energy_1 = np.trapz(Power_values, Time_values)
+    
+    # print(f"Power: {Power_values[0:10]}, Time: {Time_values[0:10]}")
+    # print(f"Energy: {Energy_1}")
+
+    Energy_1_per_km = Energy_1/ (23.29023374 * 360000) # to get it in kWh/km
+    # print(f"Energy 1 per km: {Energy_1_per_km}")
+    
+    # Range_1 = ((battery_energy)/Energy_1_per_km) * 0.9025
+
+    # print(f"Pack mass: {Pack_mass}, Battery mass {Battery_mass}, Battery capacity(kWh): {battery_energy}, Range: {Range_1}")
+
+    # battery_energy_test = 135 # Rivian R1T
+    # battery_energy_test = 64 # Kia Niro
+    # battery_energy_test = 27.7 # Nissan Leaf
+    # battery_energy_test = 82.1 # Tesla model 3
+    # battery_energy_test = 111 # Polestar 3 
+    # battery_energy_test = 100 # Audi Q8 e-tron
+    # battery_energy_test = 74.6 # Kia EV6
+    # battery_energy_test = 86.5 # Audi sportback
+    # battery_energy_test = 32.3 # skoda citigo
+    battery_energy_test = 45 # lexus ux 300e
+    # battery_energy_test = 82 # VW ID4
+    # battery_energy_test = 45 # pegeot e208
+
+    Range_1 = ((battery_energy_test)/Energy_1_per_km) * 0.97
+
+    return Range_1
+          
+
+
+# car_data = [3100, 0.3, 3.38, 0.015, 0] # Rivian R1T             Actual: 505, Calculated: 555 (90.25% efficiency)
+# car_data = [1748, 0.29, 2.37, 0.015, 0] # Kia Niro EV         Actual: 384, Calculated: 382
+# car_data = [1486, 0.28, 2.33, 0.015, 0] # Nissan Leaf         Actual: 169(excel), Calculated: 166 Using 2 chems: 310
+# car_data = [1830, 0.23, 2.268, 0.015, 0] # Tesla model 3 2022 long range AWD     
+# car_data = [1928, 0.23, 2.27, 0.015, 0] # Tesla Model 3 2021 long range AWD
+# car_data = [2584, 0.29, 2.3, 0.015, 0] # Polestar 3              Actual: 610, Calculated: 567
+# car_data = [2695, 0.27, 2.47, 0.015, 0] # Audi    373
+# car_data = [2115, 0.28, 2.93, 0.015, 0] # Kia EV6     424
+# car_data = [1840, 0.31, 2.47, 0.015, 0] # lexus ux 300e    308
+# car_data = [1229, 0.308, 2.45, 0.015, 0] # skoda citigo
+# car_data = [2049, 0.28, 3.02, 0.015, 0] # VW ID4     470
+# car_data = [1500, 0.29, 2.06, 0.015, 0] # pegeot e208    357
+ 
+# range_test = Range_Estimation_for_Batteries_2(WLTP_data, car_data, 0, 0, 0)
 # print(f"Range test: {range_test}")
 
 

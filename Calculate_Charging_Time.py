@@ -18,11 +18,18 @@ def Charging_times(battery_data_series_parallel, battery_1, battery_2):
         battery_1_min_time = 60 * ((battery_1_capacity * 0.8) - (battery_1_capacity * 0.1)) /battery_1_max_charging_current
         min_total_time = battery_1_min_time
 
+        battery_1_max_charger_power = battery_1_max_charging_current * battery_1_voltage_max
+        max_total_power = battery_1_max_charger_power
+
+        battery_1_energy = battery_1[14] * battery_data_series_parallel[1] * battery_1[16] * battery_data_series_parallel[0]
+
+        battery_1_min_time_from_energy = 60 * (((battery_1_energy * 0.8) - (battery_1_energy * 0.1)) /(battery_1_max_charger_power))
+        min_total_time = battery_1_min_time_from_energy
+
         battery_1_std_time = ((battery_1_capacity * 0.8) - (battery_1_capacity * 0.1)) /battery_1_std_charging_current
         std_total_time = battery_1_std_time
 
-        battery_1_max_charger_power = battery_1_max_charging_current * battery_1_voltage_max
-        max_total_power = battery_1_max_charger_power
+        
     
     else: 
 

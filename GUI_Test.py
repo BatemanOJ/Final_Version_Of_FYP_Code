@@ -1304,7 +1304,7 @@ EV_r_r.bind("<KeyRelease>", update_sliders)
 calc_button = ctk.CTkButton(app, text="Calculate", command=calculate)
 calc_button.grid(row= 10, column= 4, padx=10, pady=0)
 # Scatter plot button
-plot_button = ctk.CTkButton(app, text="All Options Scatter Plot", command=lambda: plot_scatter(successful_combinations_1_bat, successful_combinations_2_bat))
+plot_button = ctk.CTkButton(app, text="Scatter Plot", command=lambda: plot_scatter(successful_combinations_1_bat, successful_combinations_2_bat))
 plot_button.grid(row=14, column=8, pady=10, padx=0)
 plot_button.grid_forget()
 
@@ -1397,7 +1397,7 @@ checkbox_both_batteries.grid_forget()
 
 # Verticle lines
 vertical_line = ctk.CTkFrame(app, width=2, height=475, fg_color="gray")
-vertical_line.place(x=832, y=0)
+vertical_line.place(x=830, y=0)
 vertical_line.grid_forget()
 
 
