@@ -127,7 +127,7 @@ def Range_Estimation_for_Batteries(WLTP_data, car_data, battery_data_series_para
     Energy_1_per_km = Energy_1/ (23.29023374 * 360000) # to get it in kWh/km
     # print(f"Energy 1 per km: {Energy_1_per_km}")
     
-    Range_1 = ((battery_energy)/Energy_1_per_km) * 0.9025
+    Range_1 = ((battery_energy)/Energy_1_per_km) * 0.889
 
     # print(f"Pack mass: {Pack_mass}, Battery mass {Battery_mass}, Battery capacity(kWh): {battery_energy}, Range: {Range_1}")
 

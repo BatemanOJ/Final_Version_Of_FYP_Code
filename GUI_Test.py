@@ -922,6 +922,210 @@ def excel_output_all():
             except: 
                 print("non number entered in charging")
 
+    battery_data, WLTP_data = Get_battery_and_WLTP_data()
+
+    BMS_option = []
+
+    for i in range(len(matching_rows)):
+
+        # if len(matching_rows) == 1:
+
+        # Gemini_possible = 0
+        # PHEV_possible = 0
+        # Both_possible = 0
+        # HEV_possible = 0
+
+        if matching_rows[i][4] == 0:
+            output = "No battery 2"
+            BMS_option.append(output)
+
+            continue
+        
+        battery_data_series_parallel = [matching_rows[i][1], matching_rows[i][2], matching_rows[i][4], matching_rows[i][5]]
+        battery_data_series_parallel_battery_1 = [matching_rows[i][1], matching_rows[i][2], 0, 0]
+        battery_data_series_parallel_battery_2 = [matching_rows[i][4], matching_rows[i][5], 0, 0]
+
+        battery_1 = battery_data[f"battery_{matching_rows[i][0]}_index"]
+        battery_2 = battery_data[f"battery_{matching_rows[i][3]}_index"]
+
+        # print(f"matching_rows: {matching_rows}")
+        # print(f"battery_data_series_parallel: {battery_data_series_parallel}")
+        # print(f"battery_1: {battery_1}")
+        # print(f"battery_2: {battery_2}")
+
+        Range_battery_1, Range_battery_2 = Range_Estimation_for_Each_Battery(WLTP_data, car_data, battery_data_series_parallel, battery_1, battery_2)
+        total_range = Range_battery_1 + Range_battery_2
+        # print(f"Range 1: {Range_battery_1}, Range 2: {Range_battery_2}")
+        Power_battery_1, Power_battery_2 = Power_Estimation_for_Each_Battery(battery_data_series_parallel, battery_1, battery_2)
+        # print(f"Power 1: {Power_battery_1}, Power 2: {Power_battery_2}")
+
+        
+        if battery_1[10] == 'not defined':
+            battery_1_cycles = 1750
+        else:
+            battery_1_cycles = battery_1[10]
+        if battery_2[10] == 'not defined':
+            battery_2_cycles = 1750
+        else:
+            battery_2_cycles = battery_2[10]
+
+        try: req_power = float(Discharging_power.get())
+        except: req_power = float(Discharging_power_slider.get())
+
+        Gemini_1 = 0
+        Gemini_2 = 0
+        PHEV_1 = 0
+        PHEV_2 = 0
+        HEV_1 = 0
+        HEV_2 = 0
+        Both = 0
+        output_1 = ""
+        output_2 = ""
+        output_3 = ""
+        output_4 = ""
+        output_5 = ""
+        output_6 = ""
+
+
+        # Check options
+        if (battery_1_cycles < 300 and Range_battery_2 > 82.86 and Power_battery_2 > req_power and battery_2_cycles > 1500):
+            Gemini_1 = 1 # Gemini has to be used to protect the battery
+            output = "Gem_1"
+        if (battery_2_cycles < 300 and Range_battery_1 > 82.86 and Power_battery_1 > req_power and battery_1_cycles > 1500):
+            Gemini_2 = 1
+            output = "Gem_2"
+
+        
+        # if (Range_battery_1 < 8 and total_range > 150 and Power_battery_2 < req_power):
+        #         HEV_1 = 1 # Have to use HEV because the range is so low on one battery that it can only be used as a power boost
+        # if (Range_battery_2 < 8 and total_range > 150 and Power_battery_1 < req_power):
+        #         HEV_2 = 1
+        if (Range_battery_1 < Range_battery_2 and Power_battery_2 < req_power and battery_1_cycles > 3000):
+                HEV_1 = 1 # Have to use HEV because the range is so low on one battery that it can only be used as a power boost
+                output = "HEV_1"
+        if (Range_battery_2 < Range_battery_1 and Power_battery_1 < req_power and battery_2_cycles > 3000):
+                HEV_2 = 1
+                output = "HEV_2"
+        
+        if (Power_battery_1 > req_power and Range_battery_1 > 48.28 and Range_battery_2 > Range_battery_1 and battery_1_cycles > 2000):
+            PHEV_1 = 1
+            output = "PHEV_1"
+        if (Power_battery_2 > req_power and Range_battery_2 > 48.28 and Range_battery_2 < Range_battery_1 and battery_2_cycles > 2000):
+            PHEV_2 = 1
+            output = "PHEV_2"
+
+        if (Gemini_1 + Gemini_2 + PHEV_1 + PHEV_2 + HEV_1 + HEV_2) == 0:
+            Both = 1
+            output = "Dual" 
+            # New_Window()
+            # BMS_label.configure(text=f"The Dual System is the best option to use with these batteries\n")
+            # print("Both possible")
+        elif(Gemini_1 + Gemini_2 + PHEV_1 + PHEV_2 + HEV_1 + HEV_2) > 1:
+            # print("More than one option selected")
+            output = "More than one"
+            if Gemini_1 == 1:
+                output_1 = "Gemini_1"
+            if Gemini_2 == 1:
+                output_2 = "Gemini_2"
+            if PHEV_1 == 1:
+                output_3 = "PHEV_1"
+            if PHEV_2 == 1:
+                output_4 = "PHEV_2"
+            if HEV_1 == 1:
+                output_5 = "HEV_1"
+            if HEV_2 == 1:
+                output_6 = "HEV_2"
+
+        
+
+        BMS_option.append((output, Range_battery_1, Range_battery_2, Power_battery_1/1000, Power_battery_2/1000, battery_1_cycles, battery_2_cycles, output_1, output_2, output_3, output_4, output_5, output_6))
+
+    # print(BMS_option) 
+
+    full_data = []
+    
+    for i in range(len(matching_rows)):
+        
+        data = {'Range (km)': matching_rows[i][10], 'Charging time (10-80%)': matching_rows[i][11], 'Charging speed (km/min)': (0.8*matching_rows[i][10] - 0.1*matching_rows[i][10])/matching_rows[i][11],\
+                'Max discharging power (kW)': (matching_rows[i][7]/1000), 'Min pack mass (kg)': matching_rows[i][8], 'Max charging power (kW)': (matching_rows[i][9]/1000),\
+                'Pack energy (kWh)': (matching_rows[i][6]/1000), 'Battery 1': matching_rows[i][0], 'Series 1': matching_rows[i][1], 'Parallel 1': matching_rows[i][2], \
+                'Battery 2': matching_rows[i][3], 'Series 2': matching_rows[i][4], 'Parallel 2': matching_rows[i][5], 'EV mass without pack (kg)': car_data[0], \
+                'EV drag coefficient': car_data[1], 'EV frontal area (m²)': car_data[2], 'EV rolling resistance (N)': car_data[3], \
+                'Required pack energy (kWh)': (desired_EV_characteristics[1]/1000), 'Pack mass (kg)': desired_EV_characteristics[2], 'Max voltage (V)': desired_EV_characteristics[3], 'Min voltage (V)': desired_EV_characteristics[4], \
+                'Required discharging power (kW)': (desired_EV_characteristics[5]/1000), 'Required charging power (kW)': (desired_EV_characteristics[6]/1000), 'BMS option': BMS_option[i][0],\
+                'Range Battery 1 (km)': BMS_option[i][1], 'Range Battery 2 (km)': BMS_option[i][2], 'Power Battery 1 (kW)': BMS_option[i][3], 'Power Battery 2 (kW)': BMS_option[i][4], \
+                'Battery 1 cycles': BMS_option[i][5], 'Battery 2 cycles': BMS_option[i][6], 'Gem 1': BMS_option[i][7], 'Gem 2': BMS_option[i][8], 'PHEV 1': BMS_option[i][9], 'PHEV 2': BMS_option[i][10], \
+                'HEV 1': BMS_option[i][11]}
+        
+        full_data.append(data)
+
+    # columns = ['Range (km)', 'Charging time(10-80%)', 'Charging speed (km/min)', 'Max discharging power', 'Min pack mass',
+    #        'Max charging power', 'Actual Energy', 'Battery 1', 'Series Bat 1', 'Parallel bat 1',
+    #        'Battery 2', 'Series bat 2', 'Parallel bat 2', 'EV mass without pack',
+    #        'EV drag coefficient', 'EV frontal area', 'EV rolling resistance',
+    #        'Total energy', 'Pack mass', 'Max V', 'Min V',
+    #        'Discharging power', 'Charging power']
+    
+    df = pd.DataFrame(full_data)#, columns=columns)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    file_path = os.path.join(f"Outputs", f"Output_{timestamp}.xlsx")
+    # sheet_name = 'Outputted Data'
+    df.to_excel(file_path, index=False)
+
+
+
+    # # Load existing workbook
+    # try:
+    #     existing_book = load_workbook(file_path)
+    #     with pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+    #         # Position the new data at the bottom of the existing sheet
+    #         start_row = existing_book[sheet_name].max_row
+    #         df.to_excel(writer, sheet_name=sheet_name, startrow=start_row, startcol=1, index=False, header=False)
+    # except FileNotFoundError:
+    #     # If file doesn't exist, create a new file
+    #     with pd.ExcelWriter(file_path, engine='openpyxl', mode='w') as writer:
+    #         df.to_excel(writer, sheet_name=sheet_name, index=False)
+    
+    print("Printed to file")
+        
+   
+    
+    # existing_book.save(file_path)
+
+def excel_output_all_saved():
+
+    desired_values = [desired_range, desired_km_per_min, desired_max_discharging_power, desired_max_mass]
+    matching_rows = [row for row in successful_combinations if row[10] >= desired_values[0] and (0.8*row[10] - 0.1*row[10])/row[11] >= desired_values[1] and row[7]/1000 >= desired_max_discharging_power and row[8] <= desired_max_mass]
+
+    desired_EV_characteristics = [0, total_energy.get(), Pack_mass.get(), Max_V.get(), Min_V.get(), Discharging_power.get(), Charging_power.get()]
+    slider_values = [0, float(total_energy_slider.get()), float(Pack_mass_slider.get()), float(Max_V_slider.get()), float(Min_V_slider.get()),float(Discharging_power_slider.get()), float(Charging_power_slider.get())]
+
+    for i in range(len(desired_EV_characteristics)):
+        # print(desired_EV_characteristics[i])
+
+        if desired_EV_characteristics[i] == "":
+            desired_EV_characteristics[i] = slider_values[i]
+        elif i == 1: 
+            try: desired_EV_characteristics[i] = float(total_energy.get())
+            except: print("non number entered in energy")
+        elif i == 2: 
+            try: desired_EV_characteristics[i] = float(Pack_mass.get())
+            except: print("non number entered in pack mass")
+        elif i == 3: 
+            try: desired_EV_characteristics[i] = float(Max_V.get())
+            except: print("non number entered in max voltage")
+        elif i == 4: 
+            try: desired_EV_characteristics[i] = float(Min_V.get())
+            except: print("non number entered in min voltage")
+        elif i == 5: 
+            try: desired_EV_characteristics[i] = float(Discharging_power.get())
+            except: print("non number entered in discharging")
+        elif i == 6: 
+            try: desired_EV_characteristics[i] = float(Charging_power.get())
+            except: 
+                print("non number entered in charging")
+
      
 
     full_data = []
@@ -1057,9 +1261,9 @@ def BMS_option():
 
 
         # Check options
-        if (battery_1_cycles < 400 and Range_battery_2 > 82.86 and Power_battery_2 > req_power and battery_2_cycles > 1500):
+        if (battery_1_cycles < 300 and Range_battery_2 > 82.86 and Power_battery_2 > req_power and battery_2_cycles > 1500):
             Gemini_1 = 1 # Gemini has to be used to protect the battery
-        if (battery_2_cycles < 400 and Range_battery_1 > 82.86 and Power_battery_1 > req_power and battery_1_cycles > 1500):
+        if (battery_2_cycles < 300 and Range_battery_1 > 82.86 and Power_battery_1 > req_power and battery_1_cycles > 1500):
             Gemini_2 = 1
 
         
@@ -1067,9 +1271,9 @@ def BMS_option():
         #         HEV_1 = 1 # Have to use HEV because the range is so low on one battery that it can only be used as a power boost
         # if (Range_battery_2 < 8 and total_range > 150 and Power_battery_1 < req_power):
         #         HEV_2 = 1
-        if (Range_battery_1 < Range_battery_2 and Power_battery_2 < req_power and battery_1_cycles > 2500):
+        if (Range_battery_1 < Range_battery_2 and Power_battery_2 < req_power and battery_1_cycles > 3000):
                 HEV_1 = 1 # Have to use HEV because the range is so low on one battery that it can only be used as a power boost
-        if (Range_battery_2 < Range_battery_1 and Power_battery_1 < req_power and battery_2_cycles > 2500):
+        if (Range_battery_2 < Range_battery_1 and Power_battery_1 < req_power and battery_2_cycles > 3000):
                 HEV_2 = 1
         
         if (Power_battery_1 > req_power and Range_battery_1 > 48.28 and Range_battery_2 > Range_battery_1 and battery_1_cycles > 2000):

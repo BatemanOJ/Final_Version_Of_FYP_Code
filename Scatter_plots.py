@@ -139,7 +139,7 @@ def plot_scatter_current_options(successful_combinations_1_bat, successful_combi
                 charging_speed_bat_2.append(charging_speed)
 
 
-            ax.scatter(range_data_bat_2, charging_speed_bat_2, color='blue', label='2 Battery Options')
+            ax.scatter(range_data_bat_2, charging_speed_bat_2, color='blue', label='HESS Options')
             range_data_all = range_data_bat_2
             charging_data_all = charging_data_bat_2
             charging_speed_data_all = charging_speed_bat_2
@@ -153,7 +153,7 @@ def plot_scatter_current_options(successful_combinations_1_bat, successful_combi
                 charging_speed = (range_data_bat_1[i]*0.8 - range_data_bat_1[i]*0.1) / charging_data_bat_1[i]
                 charging_speed_bat_1.append(charging_speed)
 
-            ax.scatter(range_data_bat_1, charging_speed_bat_1, color='red', label='1 Battery Options')
+            ax.scatter(range_data_bat_1, charging_speed_bat_1, color='red', label='SESS Options')
             range_data_all.extend(range_data_bat_1)
             charging_data_all.extend(charging_data_bat_1)
             charging_speed_data_all.extend(charging_speed_bat_1)
