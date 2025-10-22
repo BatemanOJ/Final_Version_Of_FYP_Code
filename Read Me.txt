@@ -1,21 +1,8 @@
-To run the code battery selection program, the following libraries must be installed:
+To run the code battery selection program, the requirements.txt file must be run first to install the necessary libraries 
 
-- numpy
-- spicy
-- matplotlib
-- os
-- customtkinter
-- plotly.express
+pip install -r requirements.txt
 
-This can be done by using the following command in the command window:
-
-pip install numpy scipy matplotlib customtkinter plotly[express]
-
-
-It must also be ensured that the following modules and Excel files are in the working directory
-
-Modules:
-- 
+It must also be ensured that the following Excel files and folders are in the working directory
 
 Excel Files:
 - Battery database from open source_CellDatabase_v6
@@ -24,7 +11,7 @@ Excel Files:
 Folders:
 - Outputs
 
-Instructions to runt the program.
+Instructions to run the program.
 To run the program, select the GUI_Test file and run. This will run a sequence and then bring up the GUI automatically.
 
 Once the GUI appears the user should input their EV characteristics and metrics using the sliders or the boxes and press calculate. The initial values in the program are for a 2015 Nissan Leaf.
@@ -33,7 +20,7 @@ The program will then find all the potential options for the metrics input.
 
 Once found the output sliders will appear on the right of the GUI. These allows the user to refine the options further to find the most suitable one for your application. 
 
-This can be done either using the weightings sliders which adjust the weightings applied to each characteristic and allow the user to specify the most important output. 
+This can be done either using the weightings sliders, which adjust the weightings applied to each characteristic and allow the user to specify the most important output. 
 
 To see the outputs of the program graphically, a scatter plot and a parallel coordinates plot are available. 
 The scatter plot shows Range against Charging Speed, each point in the scatter plot can be clicked on to see more details.
